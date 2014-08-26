@@ -21,7 +21,7 @@
     ]
   }
 */
-var SURVEY_JSON_SRC = '../data/brave-c3i-members.csv.json';
+var SURVEY_JSON_SRC = 'data/brave-c3i-members.csv.json';
 
 // Unfortunately Google Forms doesn't give clues about question type.
 // On this leadership survey, the most possible choices for multiple choice
