@@ -64,7 +64,7 @@ function init(){
     console.log("Summeries rendered.");
     bindEvents();
     
-    $('#summary').children().first().click();
+    $('#summary').children().first().addClass('selected');
   })
   .fail(renderFail);
 };
@@ -217,7 +217,7 @@ function buildTextCloud(q){
   var title = $('<h3></h3>').text(q.question);
   $('#summary').append(title);
   var container = $('<div></div>').addClass('container textcloud');
-  var el = $('<p></p>');
+  var el = $('<div></div>');
   for(a in q.summaryObj){
     if(q.summaryObj.hasOwnProperty(a)){
       var length = (a.length > 80 ? "long" : 
