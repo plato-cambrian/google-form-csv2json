@@ -1,0 +1,24 @@
+{
+  "name": "google-form-csv2json",
+  "version": "0.1.0",
+  "authors": [
+    "plato@societypro.org"
+  ],
+  "description": "A node script to format google forms CSV data into json; and a html chart of some data",
+  "main": "index.html",
+  "keywords": [
+    "bravecollective",
+    "google",
+    "csv",
+    "form",
+    "d3js"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
