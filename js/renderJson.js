@@ -60,8 +60,11 @@ function init(){
     console.log(survey);
     summaries = accumulateSummaries(survey); // this tallies up identical responses
     console.log("Rendering summeries");
-    console.log(summaries);
     renderSurvey(summaries);
+    console.log("Summeries rendered.");
+    bindEvents();
+    
+    $('#summary').children().first().click();
   })
   .fail(renderFail);
 };
@@ -137,8 +140,6 @@ function accumulateSummaries(survey){
   // Reduce the question's answer list to a summaryObj. Go through summaryObj
   // and create summaryArr. 
 
-  console.log('Before reduction');
-  console.log(qList);
   for(var i=0; i < qList.length; i++){
     var thisQ = qList[i];
     var summaryObj = thisQ.answers.reduce(reducer, {});
@@ -146,8 +147,6 @@ function accumulateSummaries(survey){
     thisQ.summaryArr = flattenSummaryObject(summaryObj);
   };
 
-  console.log('After reduction');
-  console.log(qList);
   //summaries = qList; doing this in init()
   return qList;
 };
@@ -158,7 +157,7 @@ function renderSurvey(summaries){
   // not worth showing. But I didn't want to process it out of the data in node.
   for(var i=1; i<summaries.length; i++){
     var q = summaries[i];
-    console.log(q);
+    //console.log(q);
     if(Object.keys(q.summaryObj).length > MAX_CHOICES){
       buildTextCloud(q);
     } else {
@@ -170,12 +169,48 @@ function renderSurvey(summaries){
 function buildChartChoice(q){
   var title = $('<h3></h3>').text(q.question);
   $('#summary').append(title);
-  var container = $('<div></div>').addClass('container chart-choice');
 
-  var el = $('<pre></pre>').append('<code></code>').text(JSON.stringify(q.summaryArr));
+  var container = $('<div></div>');
+  container.addClass('container chart-choice');
+  container.css({
+    width: '600px', 
+    height: '400px',
+    margin: 'auto', 
+  })
+  //var can = d3.selectAll( container.toArray() ); //d3
+  var svg =
+    d3.select(container[0])
+    .append('svg')
+    .style('background-color', '#888888')
 
-  container.append(el);
   $('#summary').append(container);
+ 
+  //Donut chart example from http://nvd3.org/examples/pie.html
+  nv.addGraph(function() {
+    var chart = 
+    nv.models.pieChart()
+      .x(function(d) { return d.a })
+      .y(function(d) { return d.n })
+      .showLabels(true)     //Display pie labels
+      .labelThreshold(.05)  //Configure the minimum slice size for labels to show up
+      .labelType("value")   //Configure what type of data to show in the label. Can be "key", "value" or "percent"
+      .donut(true)          //Turn on Donut mode. Makes pie chart look tasty!
+      .donutRatio(0.35)     //Configure how big you want the donut hole size to be.
+      ;
+
+    svg
+      .datum(q.summaryArr)
+      .transition().duration(350)
+      .call(chart);
+
+    return chart;
+  });
+
+
+
+
+  //var el = $('<pre></pre>').append('<code></code>').text(JSON.stringify(q.summaryArr));
+  //container.append(el);
 }
 
 function buildTextCloud(q){
@@ -194,4 +229,61 @@ function buildTextCloud(q){
   };
   container.append(el);
   $('#summary').append(container);
+}
+
+function bindEvents(){
+  // Use j and k to cycle through headers
+  $(document).on('keydown', function(e){
+    if(e.which === 74){ // J pressed
+      goDown();
+    } else if (e.which === 75){
+      goUp();
+    };
+  });
+
+  $('#keyHintK').click(goUp);
+  $('#keyHintJ').click(goDown);
+
+  $('#summary h3').click(function(){
+    selectHeader($(this));
+  });
+
+  $('#summary .container').click(function(){
+    var $h3 = $(this).prev();
+    selectHeader($h3);
+  });
+}
+
+function goUp(){
+  $('#keyHintK').addClass('flash');
+  window.setTimeout(function(){
+    $('#keyHintK').removeClass('flash');
+  }, 50);
+  var $old = $('.selected');
+  var $new = $old.prev().prev(); // skip the prev container, select the next h3
+  if($new.length === 0){ // we reached the beginning
+    //select($('#summary').children().last().prev()); // Select last but one element (the h3)
+  } else {
+    selectHeader($new);
+  };
+}
+
+function goDown(){
+  $('#keyHintJ').addClass('flash');
+  window.setTimeout(function(){
+    $('#keyHintJ').removeClass('flash');
+  }, 50);
+  var $old = $('.selected');
+  var $new = $old.next().next(); // skip the next container, select the next h3
+  if($new.length === 0){ // we reached the end
+    //select($('#summary').children().first());
+  } else {
+    selectHeader($new);
+  };
+}
+
+function selectHeader($what){
+  $('.selected').removeClass('selected');
+  $what.addClass('selected');
+  $what[0].scrollIntoView();
 }

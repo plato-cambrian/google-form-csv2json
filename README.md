@@ -15,6 +15,7 @@ should run `node js/node-makeJson.js your/file.csv` and then change
 
 Unfortunately, google forms csv export does not include metadata about question
 type (multiple choice, range, freeform.) You just get a list of answer strings.
+
 `renderJson.js` assumes that any question with more than 7 unique answers is a
 free-form text question; and every other question is multiple choice.
 
